@@ -6,11 +6,11 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import de.janschoenfeld.mburlshortener.model.repository.UrlRepository;
 import de.janschoenfeld.mburlshortener.service.UrlService;
 import jakarta.annotation.Nullable;
-import java.net.URI;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,15 +39,18 @@ public class UrlController {
     return urlService.shortenUrl(url, target, characterLimit);
   }
 
-  @GetMapping({"{shortUrl}"})
-  public ResponseEntity<Void> getOriginalUrl(@PathVariable String shortUrl){
+  @GetMapping({"/{shortUrl}"})
+  public void getOriginalUrl(HttpServletResponse response, @PathVariable String shortUrl){
     final var urlOptional = urlRepository.findByShorted(shortUrl);
     if (urlOptional.isPresent()) {
-      return ResponseEntity.status(HttpStatus.FOUND)
-                           .location(URI.create(urlOptional.get().getOriginal()))
-                           .build();
+      try {
+        response.sendRedirect(urlOptional.get().getOriginal());
+      } catch (IOException e) {
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+            "Error occurred while attempting to redirect the request");
+      }
     }
-    return ResponseEntity.notFound().build();
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
   }
 
   private void validateInput(String url, String target) {
