@@ -25,7 +25,7 @@ public class Url {
   public Url() {
   }
 
-  public Url(String original, String shorted){
+  public Url(String original, String shorted) {
     this.original = original;
     this.shorted = shorted;
   }

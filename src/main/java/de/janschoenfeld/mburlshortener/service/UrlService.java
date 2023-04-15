@@ -47,9 +47,14 @@ public class UrlService {
     return buildResponseUrl(urlEntity.getShorted());
   }
 
+  private String checkOriginalUrlCollision(String url) {
+    final var savedUrlOptional = urlRepository.findFirstByOriginal(url);
+    return savedUrlOptional.map(value -> buildResponseUrl(value.getShorted())).orElse(null);
+  }
+
   /**
-   * collision chances for the encoded and hashed shortened url are
-   * very slim, if one should happen we slightly alter the shortened url
+   * collision chances for the encoded and hashed shortened url are very slim, if one should happen we slightly alter
+   * the shortened url
    */
   private String checkIfShortUrlExists(String shortened) {
     if (urlRepository.findByShorted(shortened).isPresent()) {
@@ -58,13 +63,13 @@ public class UrlService {
     return shortened;
   }
 
-  private String checkOriginalUrlCollision(String url) {
-    final var savedUrlOptional = urlRepository.findFirstByOriginal(url);
-    return savedUrlOptional.map(value -> buildResponseUrl(value.getShorted())).orElse(null);
-  }
-
   private String buildResponseUrl(String shorted) {
     UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath().path(shorted);
     return builder.build().toUriString();
+  }
+
+  public void incrementCounter(Url url) {
+    url.setTimesCalled_day(url.getTimesCalled_day() + 1);
+    urlRepository.save(url);
   }
 }

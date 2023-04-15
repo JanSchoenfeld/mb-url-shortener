@@ -4,10 +4,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 public class ShortenUtils {
 
-  private ShortenUtils(){}
-
   private static final String BASE62_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   private static final int BASE62 = 62;
+
+  private ShortenUtils() {}
 
   public static String buildShortenedUrl(String url, int length) {
     var hash = new DigestUtils("MD5").digestAsHex(url);

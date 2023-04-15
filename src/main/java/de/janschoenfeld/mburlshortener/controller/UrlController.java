@@ -3,10 +3,8 @@ package de.janschoenfeld.mburlshortener.controller;
 import static org.apache.commons.lang3.StringUtils.deleteWhitespace;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import de.janschoenfeld.mburlshortener.model.Url;
 import de.janschoenfeld.mburlshortener.model.repository.UrlRepository;
 import de.janschoenfeld.mburlshortener.service.UrlService;
-import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -26,7 +24,8 @@ public class UrlController {
 
   private final int characterLimit;
 
-  public UrlController(UrlService urlService, UrlRepository urlRepository, @Value("${validation.character-limit:6}") int characterLimit) {
+  public UrlController(UrlService urlService, UrlRepository urlRepository,
+                       @Value("${validation.character-limit:6}") int characterLimit) {
     this.urlService = urlService;
     this.urlRepository = urlRepository;
     this.characterLimit = characterLimit;
@@ -34,32 +33,10 @@ public class UrlController {
   }
 
   @GetMapping("url/shorten/")
-  public String shortenUrl(String url, @Nullable String target) {
+  public String shortenUrl(String url, String target) {
     target = deleteWhitespace(target);
     validateInput(url, target);
     return urlService.shortenUrl(url, target, characterLimit);
-  }
-
-  @GetMapping({"/{shortUrl}"})
-  public void getOriginalUrl(HttpServletResponse response, @PathVariable String shortUrl) {
-    final var urlOptional = urlRepository.findByShorted(shortUrl);
-    if (urlOptional.isPresent()) {
-      try {
-        final var url = urlOptional.get();
-        incrementCounter(url);
-        response.sendRedirect(url.getOriginal());
-      } catch (IOException e) {
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-            "Error occurred while attempting to redirect the request");
-      }
-    } else {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
-    }
-  }
-
-  private void incrementCounter(Url url) {
-    url.setTimesCalled_day(url.getTimesCalled_day() + 1);
-    urlRepository.save(url);
   }
 
   private void validateInput(String url, String target) {
@@ -70,6 +47,23 @@ public class UrlController {
     if (!isEmpty(target) && target.length() > characterLimit) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           String.format("Target URL cannot exceed %s characters", characterLimit));
+    }
+  }
+
+  @GetMapping({"/{shortUrl}"})
+  public void getOriginalUrl(HttpServletResponse response, @PathVariable String shortUrl) {
+    final var urlOptional = urlRepository.findByShorted(shortUrl);
+    if (urlOptional.isPresent()) {
+      try {
+        final var url = urlOptional.get();
+        urlService.incrementCounter(url);
+        response.sendRedirect(url.getOriginal());
+      } catch (IOException e) {
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+            "Error occurred while attempting to redirect the request");
+      }
+    } else {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
     }
   }
 }
