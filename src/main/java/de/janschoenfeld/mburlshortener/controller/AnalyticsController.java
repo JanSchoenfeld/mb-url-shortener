@@ -2,6 +2,7 @@ package de.janschoenfeld.mburlshortener.controller;
 
 import de.janschoenfeld.mburlshortener.model.repository.UrlRepository;
 import de.janschoenfeld.mburlshortener.service.AnalyticsService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,11 +19,12 @@ public class AnalyticsController {
   private final UrlRepository urlRepository;
 
   @GetMapping("clicks/day")
+  @Operation(summary = "Returns all clicks for the shortened Url on this day, "
+                       + "if no specified aggregates all clicks over all links.")
   public Long getDailyClicks(@RequestParam(required = false) String shortenedUrl) {
     if (StringUtils.isNotEmpty(shortenedUrl)) {
       return analyticsService.getDailyClicks(shortenedUrl);
     }
     return urlRepository.sumDailyClicks();
   }
-
 }
