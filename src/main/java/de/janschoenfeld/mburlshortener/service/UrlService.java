@@ -8,8 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +33,7 @@ public class UrlService {
 
     var urlEntity = new Url(url, shorted);
     urlRepository.save(urlEntity);
-    return buildResponseUrl(urlEntity.getShorted());
+    return urlEntity.getShorted();
   }
 
   private String shortenToTarget(String url, String target) {
@@ -44,12 +42,12 @@ public class UrlService {
     }
     var urlEntity = new Url(url, target);
     urlRepository.save(urlEntity);
-    return buildResponseUrl(urlEntity.getShorted());
+    return urlEntity.getShorted();
   }
 
   private String checkOriginalUrlCollision(String url) {
     final var savedUrlOptional = urlRepository.findFirstByOriginal(url);
-    return savedUrlOptional.map(value -> buildResponseUrl(value.getShorted())).orElse(null);
+    return savedUrlOptional.map(Url::getShorted).orElse(null);
   }
 
   /**
@@ -61,11 +59,6 @@ public class UrlService {
       return shortened.substring(0, shortened.length() - 1);
     }
     return shortened;
-  }
-
-  private String buildResponseUrl(String shorted) {
-    UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath().path(shorted);
-    return builder.build().toUriString();
   }
 
   public void incrementCounter(Url url) {

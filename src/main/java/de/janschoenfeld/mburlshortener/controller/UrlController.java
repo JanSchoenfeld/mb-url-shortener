@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 public class UrlController {
@@ -36,7 +38,7 @@ public class UrlController {
   public String shortenUrl(String url, String target) {
     target = deleteWhitespace(target);
     validateInput(url, target);
-    return urlService.shortenUrl(url, target, characterLimit);
+    return buildResponseUrl(urlService.shortenUrl(url, target, characterLimit));
   }
 
   private void validateInput(String url, String target) {
@@ -44,10 +46,14 @@ public class UrlController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           String.format(String.format("'%s' is not a valid url", url)));
     }
-    if (!isEmpty(target) && target.length() > characterLimit) {
+    if (validateTarget(target)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          String.format("Target URL cannot exceed %s characters", characterLimit));
+          String.format("Target URL contains more than %s or invalid characters", characterLimit));
     }
+  }
+
+  private boolean validateTarget(String target) {
+    return !isEmpty(target) && target.length() > characterLimit && target.matches("^[a-zA-Z0-9]+$");
   }
 
   @GetMapping({"/{shortUrl}"})
@@ -65,5 +71,10 @@ public class UrlController {
     } else {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
     }
+  }
+
+  private String buildResponseUrl(String shorted) {
+    UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath().path(shorted);
+    return builder.build().toUriString();
   }
 }
