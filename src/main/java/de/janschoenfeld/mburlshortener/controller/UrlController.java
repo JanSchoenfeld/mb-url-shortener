@@ -3,6 +3,7 @@ package de.janschoenfeld.mburlshortener.controller;
 import static org.apache.commons.lang3.StringUtils.deleteWhitespace;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+import de.janschoenfeld.mburlshortener.model.Url;
 import de.janschoenfeld.mburlshortener.model.repository.UrlRepository;
 import de.janschoenfeld.mburlshortener.service.UrlService;
 import jakarta.annotation.Nullable;
@@ -44,13 +45,20 @@ public class UrlController {
     final var urlOptional = urlRepository.findByShorted(shortUrl);
     if (urlOptional.isPresent()) {
       try {
-        response.sendRedirect(urlOptional.get().getOriginal());
+        final var url = urlOptional.get();
+        incrementCounter(url);
+        response.sendRedirect(url.getOriginal());
       } catch (IOException e) {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
             "Error occurred while attempting to redirect the request");
       }
     }
     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
+  }
+
+  private void incrementCounter(Url url) {
+    url.setTimesCalled_day(url.getTimesCalled_day() + 1);
+    urlRepository.save(url);
   }
 
   private void validateInput(String url, String target) {
