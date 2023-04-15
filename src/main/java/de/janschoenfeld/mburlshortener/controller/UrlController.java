@@ -41,7 +41,7 @@ public class UrlController {
   }
 
   @GetMapping({"/{shortUrl}"})
-  public void getOriginalUrl(HttpServletResponse response, @PathVariable String shortUrl){
+  public void getOriginalUrl(HttpServletResponse response, @PathVariable String shortUrl) {
     final var urlOptional = urlRepository.findByShorted(shortUrl);
     if (urlOptional.isPresent()) {
       try {
@@ -52,8 +52,9 @@ public class UrlController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
             "Error occurred while attempting to redirect the request");
       }
+    } else {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
     }
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
   }
 
   private void incrementCounter(Url url) {
