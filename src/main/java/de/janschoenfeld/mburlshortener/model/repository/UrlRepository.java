@@ -8,5 +8,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface UrlRepository extends CrudRepository<Url, UUID> {
 
   Optional<Url> findByShorted(String shorted);
+  Optional<Url> findFirstByOriginal(String original);
 
 }
