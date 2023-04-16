@@ -17,6 +17,7 @@
         <groupId>org.springframework.boot</groupId>
       </plugin>
     </plugins>
+    <finalName>mb-url-shortener</finalName>
   </build>
   <dependencies>
     <dependency>
