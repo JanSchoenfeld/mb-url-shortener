@@ -7,7 +7,7 @@ This project uses Spring Boot 3, PostgreSQL, flyway, docker, docker-compose and 
 ## Getting started
 
 Run the following commands to clone the application, create and start docker images of the application and a
-corrosponding PostgreSQL database:
+corresponding PostgreSQL database:
 
 ```
 git clone https://github.com/JanSchoenfeld/mb-url-shortener.git
