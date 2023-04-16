@@ -38,12 +38,30 @@ public class UrlController {
   }
 
   @PostMapping("url/shorten/")
-  @Operation(summary = "Takes an input url and shortens it. "
-                       + "If a target url is provided the server will try to target as custom url.")
+  @Operation(summary = "Takes an input URL and shortens it. "
+                       + "If a target URL is provided the server will try to target as custom URL")
   public String shortenUrl(String url, @RequestParam(required = false) String target) {
     target = deleteWhitespace(target);
     validateInput(url, target);
     return buildResponseUrl(urlService.shortenUrl(url, target, characterLimit));
+  }
+
+  @GetMapping({"/{shortUrl}"})
+  @Operation(summary = "Takes a shorted URL as input and redirects to the original URL")
+  public void getOriginalUrl(HttpServletResponse response, @PathVariable String shortUrl) {
+    final var urlOptional = urlRepository.findByShorted(shortUrl);
+    if (urlOptional.isPresent()) {
+      try {
+        final var url = urlOptional.get();
+        urlService.incrementCounter(url);
+        response.sendRedirect(url.getOriginal());
+      } catch (IOException e) {
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+            "Error occurred while attempting to redirect the request");
+      }
+    } else {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
+    }
   }
 
   private void validateInput(String url, String target) {
@@ -64,22 +82,5 @@ public class UrlController {
 
   private boolean validateTarget(String target) {
     return !isEmpty(target) && target.length() > characterLimit && target.matches("^[a-zA-Z0-9]+$");
-  }
-
-  @GetMapping({"/{shortUrl}"})
-  public void getOriginalUrl(HttpServletResponse response, @PathVariable String shortUrl) {
-    final var urlOptional = urlRepository.findByShorted(shortUrl);
-    if (urlOptional.isPresent()) {
-      try {
-        final var url = urlOptional.get();
-        urlService.incrementCounter(url);
-        response.sendRedirect(url.getOriginal());
-      } catch (IOException e) {
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-            "Error occurred while attempting to redirect the request");
-      }
-    } else {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
-    }
   }
 }

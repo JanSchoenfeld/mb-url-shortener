@@ -20,7 +20,7 @@ public class AnalyticsController {
 
   @GetMapping("clicks/day")
   @Operation(summary = "Returns all clicks for the shortened Url on this day, "
-                       + "if no specified aggregates all clicks over all links.")
+                       + "if no specified aggregates all clicks over all links")
   public Long getDailyClicks(@RequestParam(required = false) String shortenedUrl) {
     if (StringUtils.isNotEmpty(shortenedUrl)) {
       return analyticsService.getDailyClicks(shortenedUrl);
