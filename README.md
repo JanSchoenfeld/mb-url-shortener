@@ -52,7 +52,7 @@ springdoc.swagger-ui.path=/api-docs           # defines a custom swagger-ui path
   - ``shorted``: represents the Base62 encoded part of the URL, e.g. for the resulting URL ``http://localhost:8080/AJH5s2`` shorted would describe the String ``AJH5s2`` and not the entire URL
   - ``target``: represents a requested representation of ``shorted``, e.g. a user provides ``https://example.org/somePath`` with the ``target`` ``click``, the endpoint would attempt to create the resource with ``shorted`` = ``click``
 - In case there is no URL provided for the ``/analytics/clicks/day/`` endpoint, the server will return the
-  count of clicks for the current day. Even though this wasn't part of the original requirement, in my mind it was a
+  count of clicks for the current day over all persisted URLs. Even though this wasn't part of the original requirement, in my mind it was a
   logical addition and made error handling for that endpoint simpler.
 - Test coverage has been limited to core functionality of the services, if this was an application that was meant to be
   deployed in a productive environment, tests for important functionalities such as database calls, controller logic and utility classes
