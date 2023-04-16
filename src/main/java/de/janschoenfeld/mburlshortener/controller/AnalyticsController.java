@@ -19,11 +19,11 @@ public class AnalyticsController {
   private final UrlRepository urlRepository;
 
   @GetMapping("clicks/day")
-  @Operation(summary = "Returns all clicks for the shortened Url on this day, "
+  @Operation(summary = "Returns all clicks for the shorted URL on this day, "
                        + "if no specified aggregates all clicks over all links")
-  public Long getDailyClicks(@RequestParam(required = false) String shortenedUrl) {
-    if (StringUtils.isNotEmpty(shortenedUrl)) {
-      return analyticsService.getDailyClicks(shortenedUrl);
+  public Long getDailyClicks(@RequestParam(required = false) String shortedUrl) {
+    if (StringUtils.isNotEmpty(shortedUrl)) {
+      return analyticsService.getDailyClicks(shortedUrl);
     }
     return urlRepository.sumDailyClicks();
   }

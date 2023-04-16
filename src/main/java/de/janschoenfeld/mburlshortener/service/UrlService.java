@@ -28,7 +28,7 @@ public class UrlService {
       return alreadySavedUrl;
     }
 
-    var shorted = ShortenUtils.buildShortenedUrl(url, length);
+    var shorted = ShortenUtils.buildShortedUrl(url, length);
     shorted = checkIfShortUrlExists(shorted);
 
     var urlEntity = new Url(url, shorted);
@@ -38,7 +38,7 @@ public class UrlService {
 
   private String shortenToTarget(String url, String target) {
     if (urlRepository.findByShorted(target).isPresent()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A shortened URL with the desired name already exists");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A shorted URL with the desired name already exists");
     }
     var urlEntity = new Url(url, target);
     urlRepository.save(urlEntity);
@@ -51,14 +51,15 @@ public class UrlService {
   }
 
   /**
-   * collision chances for the encoded and hashed shortened url are very slim, if one should happen we slightly alter
-   * the shortened url
+   * Collision chances for the encoded and hashed shorted url are very slim, if one should happen we slightly alter
+   * the shorted URL by removing the last character from it.
+   * Another approach would be to salt the hash with another random value.
    */
-  private String checkIfShortUrlExists(String shortened) {
-    if (urlRepository.findByShorted(shortened).isPresent()) {
-      return shortened.substring(0, shortened.length() - 1);
+  private String checkIfShortUrlExists(String shorted) {
+    if (urlRepository.findByShorted(shorted).isPresent()) {
+      return shorted.substring(0, shorted.length() - 1);
     }
-    return shortened;
+    return shorted;
   }
 
   public void incrementCounter(Url url) {

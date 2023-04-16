@@ -74,15 +74,15 @@ class UrlServiceTest {
   }
 
   @Test
-  void shouldReturnShortenedUrl_IfUrlExists() {
+  void shouldReturnShortedUrl_IfUrlExists() {
     var url = "http://exa.mp/le";
     var characterLimit = 4;
 
-    final var existingShortenedUrl = "iExist";
-    when(repo.findFirstByOriginal(url)).thenReturn(Optional.of(new Url(url, existingShortenedUrl)));
+    final var existingShortedUrl = "iExist";
+    when(repo.findFirstByOriginal(url)).thenReturn(Optional.of(new Url(url, existingShortedUrl)));
 
     var result = urlService.shortenUrl(url, null, characterLimit);
 
-    assertEquals(existingShortenedUrl, result);
+    assertEquals(existingShortedUrl, result);
   }
 }

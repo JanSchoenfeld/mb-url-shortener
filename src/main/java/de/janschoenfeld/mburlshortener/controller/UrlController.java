@@ -60,7 +60,7 @@ public class UrlController {
             "Error occurred while attempting to redirect the request");
       }
     } else {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found");
     }
   }
 

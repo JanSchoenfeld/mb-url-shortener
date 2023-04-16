@@ -9,7 +9,7 @@ public class ShortenUtils {
 
   private ShortenUtils() {}
 
-  public static String buildShortenedUrl(String url, int length) {
+  public static String buildShortedUrl(String url, int length) {
     var hash = new DigestUtils("MD5").digestAsHex(url);
     var result = base62Encode(hash);
     return result.substring(0, length);

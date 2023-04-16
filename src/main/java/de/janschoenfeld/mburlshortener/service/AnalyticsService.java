@@ -22,7 +22,7 @@ public class AnalyticsService {
       return urlOptional.get().getTimesCalled_day();
     }
 
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Please provide an existing shortened Url");
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Please provide an existing shorted Url");
   }
 
   @Scheduled(cron = "${analytics.ttl.cron.expression}")
