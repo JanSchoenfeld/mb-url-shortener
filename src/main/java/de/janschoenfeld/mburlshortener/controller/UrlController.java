@@ -74,7 +74,7 @@ public class UrlController {
   }
 
   private String buildResponseUrl(String shorted) {
-    UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath().path(shorted);
+    UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath().path(shorted + "/");
     return builder.build().toUriString();
   }
 }
