@@ -1,6 +1,8 @@
 package de.janschoenfeld.mburlshortener.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -17,13 +19,11 @@ import org.springframework.web.server.ResponseStatusException;
 @ExtendWith(MockitoExtension.class)
 class UrlServiceTest {
 
+  String base62regex = "^[a-zA-Z0-9]+$";
   @Mock
   private UrlRepository repo;
-
   @InjectMocks
   private UrlService urlService;
-
-  String base62regex = "^[a-zA-Z0-9]+$";
 
   @Test
   void shouldShortenToRandom() {
@@ -44,7 +44,7 @@ class UrlServiceTest {
 
     var result = urlService.shortenUrl(url, null, 4);
 
-    assertEquals(characterLimit-1, result.length());
+    assertEquals(characterLimit - 1, result.length());
     assertTrue(result.matches(base62regex));
   }
 
@@ -67,8 +67,8 @@ class UrlServiceTest {
 
     when(repo.findByShorted(target)).thenReturn(Optional.of(new Url()));
 
-    var exception = assertThrows(ResponseStatusException.class,
-        () -> urlService.shortenUrl(url, target, characterLimit));
+    var exception =
+        assertThrows(ResponseStatusException.class, () -> urlService.shortenUrl(url, target, characterLimit));
 
     assertEquals(400, exception.getBody().getStatus());
   }

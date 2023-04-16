@@ -1,6 +1,7 @@
 package de.janschoenfeld.mburlshortener.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import de.janschoenfeld.mburlshortener.model.Url;
@@ -39,8 +40,7 @@ class AnalyticsServiceTest {
     var shorted = "test";
     when(repo.findByShorted(shorted)).thenReturn(Optional.empty());
 
-    var exception = assertThrows(ResponseStatusException.class,
-        () -> analyticsService.getDailyClicks(shorted));
+    var exception = assertThrows(ResponseStatusException.class, () -> analyticsService.getDailyClicks(shorted));
 
     assertEquals(404, exception.getBody().getStatus());
   }

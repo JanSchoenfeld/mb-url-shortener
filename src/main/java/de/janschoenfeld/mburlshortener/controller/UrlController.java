@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import de.janschoenfeld.mburlshortener.model.repository.UrlRepository;
 import de.janschoenfeld.mburlshortener.service.UrlService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -34,8 +37,10 @@ public class UrlController {
     this.urlValidator = new UrlValidator();
   }
 
-  @GetMapping("url/shorten/")
-  public String shortenUrl(String url, String target) {
+  @PostMapping("url/shorten/")
+  @Operation(summary = "Takes an input url and shortens it. "
+                       + "If a target url is provided the server will try to target as custom url.")
+  public String shortenUrl(String url, @RequestParam(required = false) String target) {
     target = deleteWhitespace(target);
     validateInput(url, target);
     return buildResponseUrl(urlService.shortenUrl(url, target, characterLimit));
@@ -50,6 +55,11 @@ public class UrlController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           String.format("Target URL contains more than %s or invalid characters", characterLimit));
     }
+  }
+
+  private String buildResponseUrl(String shorted) {
+    UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath().path(shorted + "/");
+    return builder.build().toUriString();
   }
 
   private boolean validateTarget(String target) {
@@ -71,10 +81,5 @@ public class UrlController {
     } else {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found.");
     }
-  }
-
-  private String buildResponseUrl(String shorted) {
-    UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath().path(shorted + "/");
-    return builder.build().toUriString();
   }
 }

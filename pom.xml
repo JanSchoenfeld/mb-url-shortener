@@ -3,6 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <artifactId>mb-url-shortener</artifactId>
   <build>
+    <finalName>mb-url-shortener</finalName>
     <plugins>
       <plugin>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -17,7 +18,6 @@
         <groupId>org.springframework.boot</groupId>
       </plugin>
     </plugins>
-    <finalName>mb-url-shortener</finalName>
   </build>
   <dependencies>
     <dependency>
@@ -91,10 +91,10 @@
       <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.9.2</version>
+      <groupId>org.junit.jupiter</groupId>
       <scope>test</scope>
+      <version>5.9.2</version>
     </dependency>
   </dependencies>
   <description>mb-url-shortener</description>
