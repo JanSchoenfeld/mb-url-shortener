@@ -24,8 +24,7 @@ You can stop the application and database by executing
 docker-compose down
 ```
 
-Note that for the sake of this being a showcase, any data written to the database will disappear after you stop the
-application.
+Note that for the sake of this being a showcase, any data written to the database will disappear after you tear down the docker containers.
 However, you are still free to host your own instance of a PostgreSQL database and configure the application accordingly
 to persist the data even after application shut down.
 
@@ -51,9 +50,6 @@ springdoc.swagger-ui.path=/api-docs           # defines a custom swagger-ui path
   - ``original``: represents the provided URL that the resulting shorted URL should redirect to, e.g. ``https://example.org/somePath``
   - ``shorted``: represents the Base62 encoded part of the URL, e.g. for the resulting URL ``http://localhost:8080/AJH5s2`` shorted would describe the String ``AJH5s2`` and not the entire URL
   - ``target``: represents a requested representation of ``shorted``, e.g. a user provides ``https://example.org/somePath`` with the ``target`` ``click``, the endpoint would attempt to create the resource with ``shorted`` = ``click``
-- In case there is no URL provided for the ``/analytics/clicks/day/`` endpoint, the server will return the
-  count of clicks for the current day over all persisted URLs. Even though this wasn't part of the original requirement, in my mind it was a
-  logical addition and made error handling for that endpoint simpler.
 - Test coverage has been limited to core functionality of the services, if this was an application that was meant to be
   deployed in a productive environment, tests for important functionalities such as database calls, controller logic and utility classes
   would have to be added.
