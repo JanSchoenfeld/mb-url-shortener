@@ -16,18 +16,15 @@ public class AnalyticsService {
   private final UrlRepository urlRepository;
 
   public Long getDailyClicks(String shorted) {
-    var urlOptional = urlRepository.findByShorted(shorted);
+    var url = urlRepository.findByShorted(shorted).orElseThrow(
+        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Please provide an existing shorted Url"));
 
-    if (urlOptional.isPresent()) {
-      return urlOptional.get().getTimesCalled_day();
-    }
-
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Please provide an existing shorted Url");
+    return url.getTimesCalled_day();
   }
 
   @Scheduled(cron = "${analytics.ttl.cron.expression}")
   public void resetDailyClicks() {
-    log.info("Reset daily daily clicks");
+    log.info("Reset daily clicks");
     urlRepository.resetDailyClicks();
   }
 }

@@ -1,7 +1,6 @@
 package de.janschoenfeld.mburlshortener.controller;
 
 import static org.apache.commons.lang3.StringUtils.deleteWhitespace;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import de.janschoenfeld.mburlshortener.model.repository.UrlRepository;
 import de.janschoenfeld.mburlshortener.service.UrlService;
@@ -49,27 +48,22 @@ public class UrlController {
   @GetMapping({"/{shortUrl}"})
   @Operation(summary = "Takes a shorted URL as input and redirects to the original URL")
   public void getOriginalUrl(HttpServletResponse response, @PathVariable String shortUrl) {
-    final var urlOptional = urlRepository.findByShorted(shortUrl);
-    if (urlOptional.isPresent()) {
+    final var url = urlRepository.findByShorted(shortUrl).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found"));
       try {
-        final var url = urlOptional.get();
         urlService.incrementCounter(url);
         response.sendRedirect(url.getOriginal());
       } catch (IOException e) {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
             "Error occurred while attempting to redirect the request");
       }
-    } else {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No original url could be found");
     }
-  }
 
   private void validateInput(String url, String target) {
     if (!urlValidator.isValid(url)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           String.format(String.format("'%s' is not a valid url", url)));
     }
-    if (validateTarget(target)) {
+    if (!validateTarget(target)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           String.format("Target URL contains more than %s or invalid characters", characterLimit));
     }
@@ -81,6 +75,6 @@ public class UrlController {
   }
 
   private boolean validateTarget(String target) {
-    return !isEmpty(target) && target.length() > characterLimit && target.matches("^[a-zA-Z0-9]+$");
+    return target == null || (target.length() <= characterLimit && target.matches("^[a-zA-Z0-9]+$"));
   }
 }

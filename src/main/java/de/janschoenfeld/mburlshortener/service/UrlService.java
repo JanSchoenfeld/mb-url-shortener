@@ -2,8 +2,10 @@ package de.janschoenfeld.mburlshortener.service;
 
 import de.janschoenfeld.mburlshortener.model.Url;
 import de.janschoenfeld.mburlshortener.model.repository.UrlRepository;
-import de.janschoenfeld.mburlshortener.util.ShortenUtils;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,7 @@ public class UrlService {
       return alreadySavedUrl;
     }
 
-    var shorted = ShortenUtils.buildShortedUrl(url, length);
+    var shorted = buildShortedUrl(url, length);
     shorted = checkIfShortUrlExists(shorted);
 
     var urlEntity = new Url(url, shorted);
@@ -46,8 +48,7 @@ public class UrlService {
   }
 
   private String checkOriginalUrlCollision(String url) {
-    final var savedUrlOptional = urlRepository.findFirstByOriginal(url);
-    return savedUrlOptional.map(Url::getShorted).orElse(null);
+    return urlRepository.findFirstByOriginal(url).map(Url::getShorted).orElse(null);
   }
 
   /**
@@ -65,5 +66,11 @@ public class UrlService {
   public void incrementCounter(Url url) {
     url.setTimesCalled_day(url.getTimesCalled_day() + 1);
     urlRepository.save(url);
+  }
+
+  public static String buildShortedUrl(String url, int length) {
+    var hash = new DigestUtils("MD5").digestAsHex(url);
+    var result = Base64.encodeBase64URLSafeString(hash.getBytes(StandardCharsets.UTF_8));
+    return result.substring(0, length);
   }
 }
